@@ -1,0 +1,5 @@
+env: tensorflow-1.8
+machine: cpu
+data:
+  - source: floydhub/datasets/colornet/1
+    destination: colornet

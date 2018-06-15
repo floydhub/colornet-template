@@ -13,4 +13,4 @@ We will:
 - Preprocess the image data for this CV task
 - Build and train the `colornet` model using Keras and Tensorflow
 - Evaluate our model on the test set
-- Run the model on your own black&white and colored picture!
+- Run the model on your own black&white and colored pictures!
