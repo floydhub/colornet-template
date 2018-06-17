@@ -2,6 +2,12 @@
 
 Today, colorization is done by hand in Photoshop, a picture can take up to one month to colorize. It requires extensive research. A face alone needs up to 20 layers of pink, green and blue shades to get it just right. But something changed this year when Amir Avni used neural networks to [troll the subreddit](http://www.whatimade.today/our-frst-reddit-bot-coloring-b-2/) [/r/Colorization](https://www.reddit.com/r/Colorization/) - a community where people colorize historical black and white images manually using Photoshop. They were astonished with Amir’s deep learning bot - what could take up to a month of manual labour could now be done in just a few seconds.
 
+### Try it now
+
+[![Run on FloydHub](https://s3-us-west-2.amazonaws.com/floydhub-assets/button/button.svg)](https://floydhub.com/run?template=https://github.com/floydhub/colornet-template)
+
+Click this button to open a Workspace on FloydHub that will train this model.
+
 ### Colorizing Black&White photos
 
 Fascinated by Amir’s neural network, Emill reproduced it and documented the process in the famous blog post: [Colorizing B&W Photos with Neural Networks](https://blog.floydhub.com/colorizing-b-w-photos-with-neural-networks/). In this notebook we will reproduce Emil's work by using the Full Version of his experiments.
