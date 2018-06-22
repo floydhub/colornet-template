@@ -90,19 +90,19 @@ def color_result(PATH, START, END, RESULT, model, inception):
         # Save images as RGB
         imsave("result/img_"+str(i)+".png", lab2rgb(cur))
 
-        
+
 def prediction_from_url(url, model, inception):
     test_image_path = '/tmp/test.jpg'
-    
+
     # Download the image
     response = requests.get(url)
     if response.status_code == 200:
         with open(test_image_path, 'wb') as f:
             f.write(response.content)
-            
+
     color_me = []
     color_me.append(read_img('test', '/', 'tmp', (256, 256)))
-                    
+
     #################
     # Preprocessing #
     #################
@@ -115,8 +115,8 @@ def prediction_from_url(url, model, inception):
     # Test model
     output = model.predict([color_me, color_me_embed])
     # Rescale the output from [-1,1] to [-128, 128]
-    output = output * 128                 
-    
+    output = output * 128
+
     # Output colorizations
     for i in range(len(output)):
         cur = np.zeros((256, 256, 3))
@@ -125,34 +125,34 @@ def prediction_from_url(url, model, inception):
         cur[:,:,1:] = output[i]
 
     # B&W
-    fig = plt.figure()
+    fig = plt.figure(figsize=(9, 9))
     ax1 = fig.add_subplot(1,3,1)
     ax1.axis('off')
     ax1.set_title('B&W')
     ax1.imshow(rgb2gray(read_img('test', '/', 'tmp', (256, 256))/255), cmap='gray')
-    
+
     # Prediction
     ax2 = fig.add_subplot(1,3,2)
     ax2.axis('off')
     ax2.set_title('Prediction')
     ax2.imshow(lab2rgb(cur))
-      
+
     # Original
     ax3 = fig.add_subplot(1,3,3)
     ax3.axis('off')
     ax3.set_title('Original')
     ax3.imshow(read_img('test', '/', 'tmp', (256, 256))/255)
 
-    
+
 def load_pretrained_model(inception_wpath, colornet_wpath):
     '''Load Emil's pretrained model'''
     print('Loading pretrained model... (it could take a while)')
-    
-    #Load weights of InceptionResNet model for embedding extraction 
+
+    #Load weights of InceptionResNet model for embedding extraction
     inception = InceptionResNetV2(weights=None, include_top=True)
     inception.load_weights(inception_wpath)
     inception.graph = tf.get_default_graph()
-    
+
     # The Model
     def conv_stack(data, filters, s):
         """Utility for building conv layer"""
@@ -174,10 +174,10 @@ def load_pretrained_model(inception_wpath, colornet_wpath):
 
     #Fusion
     # y_mid: (None, 256, 28, 28)
-    fusion_output = RepeatVector(32 * 32)(embed_input) 
+    fusion_output = RepeatVector(32 * 32)(embed_input)
     fusion_output = Reshape(([32, 32, 1000]))(fusion_output)
-    fusion_output = concatenate([encoder_output, fusion_output], axis=3) 
-    fusion_output = Conv2D(256, (1, 1), activation='relu')(fusion_output) 
+    fusion_output = concatenate([encoder_output, fusion_output], axis=3)
+    fusion_output = Conv2D(256, (1, 1), activation='relu')(fusion_output)
 
 
 
@@ -192,9 +192,9 @@ def load_pretrained_model(inception_wpath, colornet_wpath):
     decoder_output = UpSampling2D((2, 2))(decoder_output)
 
     model = Model(inputs=[encoder_input, embed_input], outputs=decoder_output)
-    
+
     # Load colornet weights
     model.load_weights(colornet_wpath)
-    
+
     print('Model loaded!')
     return(model, inception)
