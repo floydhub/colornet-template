@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div class="container">
+  <h1>Serving</h1>
+
+  <form action="hello" method='POST' enctype="multipart/form-data">
+      <div class='form-group'>
+        <label for="avatar">Image</label>
+        <input type="file"
+               class='form-control-file'
+               id="file" name="file"
+               accept="image/png, image/jpeg" />
+      </div>
+    <button class='btn btn-primary' type='Submit'>Submit</button>
+  </form>
+
+  <div>
+  {% if colorized %}
+    <img src="{{colorized}}" />
+  {% endif %}
+  </div>
+</div>
+
+
+<style type="text/css">
+  img {
+    max-width: 100%;
+  }
+</style>
+
+{% endblock %}

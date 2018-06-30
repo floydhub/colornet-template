@@ -179,6 +179,8 @@ def load_pretrained_model(inception_wpath, colornet_wpath):
     fusion_output = concatenate([encoder_output, fusion_output], axis=3)
     fusion_output = Conv2D(256, (1, 1), activation='relu')(fusion_output)
 
+
+
     #Decoder
     decoder_output = conv_stack(fusion_output, 128, 1)
     decoder_output = UpSampling2D((2, 2))(decoder_output)
@@ -195,4 +197,4 @@ def load_pretrained_model(inception_wpath, colornet_wpath):
     model.load_weights(colornet_wpath)
 
     print('Model loaded!')
-    return (model, inception)
+    return(model, inception)
