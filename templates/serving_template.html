@@ -2,31 +2,37 @@
 {% block body %}
 
 <div class="container">
-  <h1>Serving</h1>
-
-  <form action="hello" method='POST' enctype="multipart/form-data">
-      <div class='form-group'>
-        <label for="avatar">Image</label>
-        <input type="file"
-               class='form-control-file'
-               id="file" name="file"
-               accept="image/png, image/jpeg" />
-      </div>
-    <button class='btn btn-primary' type='Submit'>Submit</button>
-  </form>
-
-  <div>
-  {% if colorized %}
-    <img src="{{colorized}}" />
-  {% endif %}
+  <div class='row'>
+    <div class='col-sm-12'>
+      <h1>Serving</h1>
+      <form action="{{eval_path}}" method='POST' enctype="multipart/form-data">
+          <div class='form-group'>
+            <label for="file">Image</label>
+            <input type="file"
+                   class='form-control-file'
+                   id="file" name="file"></input>
+          </div>
+        <button class='btn btn-primary' type='Submit'>Submit</button>
+      </form>
+    </div>
   </div>
+
+  {% if input and output %}
+  <div class='row'>
+    <div class='col-md-6 col-sm-12'>
+      <label>Input</label>
+      <div>
+        <img class="img-fluid" src="{{input}}" />
+      </div>
+    </div>
+    <div class='col-md-6 col-sm-12'>
+      <label>Output</label>
+      <div>
+        <img class="img-fluid" src="{{output}}" />
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
-
-
-<style type="text/css">
-  img {
-    max-width: 100%;
-  }
-</style>
 
 {% endblock %}
