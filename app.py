@@ -1,5 +1,8 @@
 import os
-from flask import Flask, request, render_template, send_from_directory
+import base64
+from io import BytesIO
+
+from flask import Flask, send_file, make_response, request, render_template, send_from_directory
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import secure_filename
 from serving import (
@@ -13,16 +16,16 @@ floyd run --cpu --data floydhub/datasets/colornet/1:colornet --mode serve --env 
 app = Flask(__name__)
 app.config['DEBUG'] = False
 
-INPUT_PATH = 'input_files'
-OUTPUT_PATH = 'output_files'
+# load_model()
 
-
+@app.route('/', methods=['GET'])
 @app.route('/expose/<route_key>', methods=['GET'])
 def index(route_key=''):
-    return render_template('serving_template.html',
-                           eval_path=f'/expose/{route_key}/image')
+    path = '/image' if route_key == '' else f'/expose/{route_key}/image'
+    return render_template('serving_template.html', eval_path=path)
 
 
+@app.route('/image', methods=["POST"])
 @app.route('/expose/<route_key>/image', methods=["POST"])
 def eval_image(route_key=''):
     """"Preprocessing the data and evaluate the model"""
@@ -36,35 +39,23 @@ def eval_image(route_key=''):
         return BadRequest("Invalid file type")
     filename = secure_filename(file.filename)
 
-    # Save Image to process
-    input_filepath = os.path.abspath(os.path.join(INPUT_PATH, filename))
-    output_filepath = os.path.abspath(os.path.join(OUTPUT_PATH, filename))
-    file.save(input_filepath)
+    # # Save Image to process
+    input_buffer = BytesIO()
+    output_buffer = BytesIO()
+    file.save(input_buffer)
 
-    img = evaluate_input(input_filepath)
-    img.save(output_filepath)
+    img = evaluate_input(input_buffer)
+    img.save(output_buffer, format="JPEG")
+    img_str = base64.b64encode(output_buffer.getvalue())
 
-    return render_template('serving_template.html',
-                           eval_path=f'/expose/{route_key}/image',
-                           input=f'/expose/{route_key}/input/{filename}',
-                           output=f'/expose/{route_key}/output/{filename}')
-
-
-@app.route('/expose/<route_key>/output/<path:path>', methods=["GET"], defaults={'directory': OUTPUT_PATH})
-@app.route('/expose/<route_key>/input/<path:path>', methods=["GET"], defaults={'directory': INPUT_PATH})
-def send_file(route_key='', path='', directory=''):
-    return send_from_directory(directory, path)
+    response = make_response(img_str)
+    response.headers.set('Content-Type', 'image/jpeg')
+    return response
 
 
-# Load the model and run the server
 if __name__ == "__main__":
     print(("* Loading model and starting Flask server..."
            "please wait until server has fully started"))
-
-    if not os.path.exists(INPUT_PATH):
-        os.makedirs(INPUT_PATH)
-    if not os.path.exists(OUTPUT_PATH):
-        os.makedirs(OUTPUT_PATH)
 
     load_model()
 

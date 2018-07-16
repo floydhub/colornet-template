@@ -1,38 +1,90 @@
 {% extends "layout.html" %}
 {% block body %}
 
+<style>
+  .loading {
+    color: #ADD8E6;
+  }
+</style>
+
+<script type="text/javascript">
+  $(function() {
+    function showInput(input) {
+      if (!input.files || !input.files[0]) {
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        $('#imgInput').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+
+    function sendFile() {
+      var formData = new FormData();
+      formData.append("file", $('#file')[0].files[0]);
+
+      $('.loading').toggleClass('d-none');
+      $('#imgOutput').toggleClass('d-none');
+
+      var form = $('#imgForm');
+      $.ajax({
+        url: form.attr('action'),
+        type: form.attr('method'),
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+          showOutput(data);
+          $('.loading').toggleClass('d-none');
+          $('#imgOutput').toggleClass('d-none');
+        },
+        error: function(xhr, err) {
+          console.error(err);
+        }
+      });
+    }
+
+    function showOutput(data) {
+      $('#imgOutput').attr('src', 'data:image/jpeg;base64,' + data);
+    }
+
+    $("#file").change(function() {
+      showInput($("#file")[0]);
+      sendFile();
+    });
+  });
+</script>
+
+
 <div class="container">
   <div class='row'>
     <div class='col-sm-12'>
-      <h1>Serving</h1>
-      <form action="{{eval_path}}" method='POST' enctype="multipart/form-data">
+      <form id='imgForm' action="{{eval_path}}" method='POST' enctype="multipart/form-data">
           <div class='form-group'>
             <label for="file">Image</label>
             <input type="file"
                    class='form-control-file'
                    id="file" name="file"></input>
           </div>
-        <button class='btn btn-primary' type='Submit'>Submit</button>
       </form>
     </div>
   </div>
 
-  {% if input and output %}
+
   <div class='row'>
     <div class='col-md-6 col-sm-12'>
-      <label>Input</label>
       <div>
-        <img class="img-fluid" src="{{input}}" />
+        <img id='imgInput' class="img-fluid" src="{{input}}" />
       </div>
     </div>
     <div class='col-md-6 col-sm-12'>
-      <label>Output</label>
       <div>
-        <img class="img-fluid" src="{{output}}" />
+        <img id='imgOutput' class="img-fluid " src="{{output}}" />
+        <div class='loading d-none'><i class="fas fa-cog fa-spin fa-5x"></i></div>
       </div>
     </div>
   </div>
-  {% endif %}
 </div>
 
 {% endblock %}
