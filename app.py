@@ -15,8 +15,8 @@ floyd run --cpu --data floydhub/datasets/colornet/1:colornet --mode serve --env 
 """
 app = Flask(__name__)
 app.config['DEBUG'] = False
+load_model()
 
-# load_model()
 
 @app.route('/', methods=['GET'])
 @app.route('/expose/<route_key>', methods=['GET'])
@@ -54,9 +54,4 @@ def eval_image(route_key=''):
 
 
 if __name__ == "__main__":
-    print(("* Loading model and starting Flask server..."
-           "please wait until server has fully started"))
-
-    load_model()
-
     app.run(host='0.0.0.0', threaded=False)
