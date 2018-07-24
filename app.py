@@ -2,9 +2,8 @@ import os
 import base64
 from io import BytesIO
 
-from flask import Flask, send_file, make_response, request, render_template, send_from_directory
+from flask import Flask, make_response, request, render_template
 from werkzeug.exceptions import BadRequest
-from werkzeug.utils import secure_filename
 from serving import (
     load_model,
     evaluate_input,
@@ -19,30 +18,26 @@ load_model()
 
 
 @app.route('/', methods=['GET'])
-@app.route('/expose/<route_key>', methods=['GET'])
-def index(route_key=''):
-    path = '/image' if route_key == '' else f'/expose/{route_key}/image'
-    return render_template('serving_template.html', eval_path=path)
+def index():
+    return render_template('serving_template.html')
 
 
 @app.route('/image', methods=["POST"])
-@app.route('/expose/<route_key>/image', methods=["POST"])
-def eval_image(route_key=''):
+def eval_image():
     """"Preprocessing the data and evaluate the model"""
     # check if the post request has the file part
-    if 'file' not in request.files:
+    input_file = request.files.get('file')
+    if not input_file:
         return BadRequest("File not present in request")
-    file = request.files['file']
-    if file.filename == '':
+    if input_file.filename == '':
         return BadRequest("File name is not present in request")
-    if not file.filename.lower().endswith(('.jpg', '.jpeg', '.png')):
+    if not input_file.filename.lower().endswith(('.jpg', '.jpeg', '.png')):
         return BadRequest("Invalid file type")
-    filename = secure_filename(file.filename)
 
     # # Save Image to process
     input_buffer = BytesIO()
     output_buffer = BytesIO()
-    file.save(input_buffer)
+    input_file.save(input_buffer)
 
     img = evaluate_input(input_buffer)
     img.save(output_buffer, format="JPEG")

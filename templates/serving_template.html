@@ -46,7 +46,7 @@
 
       var form = $('#imgForm');
       $.ajax({
-        url: form.attr('action'),
+        url: window.location.href+'/image',
         type: form.attr('method'),
         data: formData,
         processData: false,
@@ -58,6 +58,9 @@
         },
         error: function(xhr, err) {
           console.error(err);
+          $('.loading').toggleClass('d-none');
+          $('#outputContainer').append(
+            '<p>Got error from serving API:</p><p>'+xhr.responseText+'</p>')
         }
       });
     }
@@ -82,7 +85,7 @@
   </div>
   <div class='row'>
     <div class='col-sm-12'>
-      <form id='imgForm' action="{{eval_path}}" method='POST' enctype="multipart/form-data">
+      <form id='imgForm' method='POST' enctype="multipart/form-data">
           <div class='form-group'>
             <label class='btn-file btn btn-outline-primary btn-lg'>
               Select image file
@@ -103,7 +106,7 @@
       </div>
     </div>
     <div class='col-md-6 col-sm-12'>
-      <div>
+      <div id='outputContainer'>
         <img id='imgOutput' class="img-fluid " src="{{output}}" />
         <div class='loading d-none'><i class="fas fa-cog fa-spin fa-5x"></i></div>
       </div>
