@@ -20,3 +20,18 @@ We will:
 - Build and train the `colornet` model using Keras and Tensorflow
 - Evaluate our model on the test set
 - Run the model on your own black&white and colored pictures!
+
+
+### Serve an interactive web page for your own model
+
+You can easily spin up a serve job on FloydHub to demo your model through an
+interactive web site. Just run the following command from workspace terminal or
+your local machine:
+
+```bash
+floyd run --mode serve
+```
+
+You should be able to see the following page when visiting the FloydHub serve url:
+
+![serve-example](https://static.floydhub.com/images/color-serve-example.png)
