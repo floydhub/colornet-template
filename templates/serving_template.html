@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<style>
+  .loading {
+    color: #e2e3e5;
+  }
+  label.btn-file {
+    overflow: hidden;
+    position: relative;
+  }
+  label.btn-file input[type='file'] {
+    cursor: inherit;
+    display: block;
+    filter: alpha(opacity=0);
+    min-height: 100%;
+    min-width: 100%;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    text-align: right;
+    cursor: pointer;
+  }
+</style>
+
+<script type="text/javascript">
+  $(function() {
+    function showInput(input) {
+      if (!input.files || !input.files[0]) {
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        $('#imgInput').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+
+    function sendFile() {
+      var formData = new FormData();
+      formData.append("file", $('#file')[0].files[0]);
+
+      $('.loading').toggleClass('d-none');
+      $('#imgOutput').toggleClass('d-none');
+
+      var form = $('#imgForm');
+      $.ajax({
+        url: window.location.href+'/image',
+        type: form.attr('method'),
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+          showOutput(data);
+          $('.loading').toggleClass('d-none');
+          $('#imgOutput').toggleClass('d-none');
+        },
+        error: function(xhr, err) {
+          console.error(err);
+          $('.loading').toggleClass('d-none');
+          $('#outputContainer').append(
+            '<p>Got error from serving API:</p><p>'+xhr.responseText+'</p>')
+        }
+      });
+    }
+
+    function showOutput(data) {
+      $('#imgOutput').attr('src', 'data:image/jpeg;base64,' + data);
+    }
+
+    $("#file").change(function() {
+      showInput($("#file")[0]);
+      sendFile();
+    });
+  });
+</script>
+
+
+<div class="container">
+  <div class='row'>
+    <div class='col-sm-12'>
+      <h1 class='display-4'>Colorizing Black &amp; White Photo</h1>
+    </div>
+  </div>
+  <div class='row'>
+    <div class='col-sm-12'>
+      <form id='imgForm' method='POST' enctype="multipart/form-data">
+          <div class='form-group'>
+            <label class='btn-file btn btn-outline-primary btn-lg'>
+              Select image file
+              <input type="file"
+                     class='form-control-file'
+                     id="file" name="file"></input>
+            </label>
+          </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div class='row'>
+    <div class='col-md-6 col-sm-12'>
+      <div>
+        <img id='imgInput' class="img-fluid" src="{{input}}" />
+      </div>
+    </div>
+    <div class='col-md-6 col-sm-12'>
+      <div id='outputContainer'>
+        <img id='imgOutput' class="img-fluid " src="{{output}}" />
+        <div class='loading d-none'><i class="fas fa-cog fa-spin fa-5x"></i></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
